@@ -1,0 +1,138 @@
+﻿html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* ----- Header ----- */
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 15px 0;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 0;
+}
+
+    nav ul li a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+/* ----- Main Content ----- */
+main {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Nút thêm sản phẩm */
+.add-product {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+    .add-product .btn-primary {
+        padding: 10px 15px;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+
+/* Danh sách sản phẩm */
+.product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Sản phẩm dạng thẻ */
+.product-card {
+    width: 250px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+    .product-card img {
+        max-width: 100%;
+        border-radius: 8px;
+    }
+
+/* Nút sửa, xóa */
+.actions {
+    margin-top: 10px;
+}
+
+    .actions .btn {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+    }
+
+.btn-warning {
+    background-color: #ffc107;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* ----- Footer ----- */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.footer-item h3 {
+    color: #ffc107;
+}
+
+.footer-item ul {
+    list-style: none;
+    padding: 0;
+}
+
+    .footer-item ul li a {
+        color: white;
+        text-decoration: none;
+    }
