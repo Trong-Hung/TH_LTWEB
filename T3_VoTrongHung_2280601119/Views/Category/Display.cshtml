@@ -1,0 +1,11 @@
+﻿@model Category
+<div class="container mt-4">
+    <h2>@Model.Name</h2>
+    <div class="card">
+        <div class="card-body">
+            <p class="card-text"><strong>ID:</strong> @Model.Id</p>
+            <p class="card-text"><strong>Số sản phẩm:</strong> @(Model.Products?.Count ?? 0)</p>
+        </div>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Quay lại danh sách</a>
+</div>
