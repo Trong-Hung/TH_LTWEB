@@ -1,0 +1,102 @@
+﻿@model IEnumerable<VoTrongHung2280601119.Models.OrderDistribution>
+
+@{
+    ViewData["Title"] = "Quản lý Đơn hàng";
+    // Layout sẽ được áp dụng từ _ViewStart.cshtml của Admin Area
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Mã Đơn hàng</th>
+            <th>Khách hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Địa chỉ giao hàng</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Id)</td>
+                <td>@Html.DisplayFor(modelItem => item.Customer.Email)</td> @* Hiển thị Email của khách hàng *@
+                <td>@Html.DisplayFor(modelItem => item.OrderDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.TotalPrice) VNĐ</td>
+                <td>@Html.DisplayFor(modelItem => item.ShippingAddress)</td>
+                <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                <td>
+                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#orderDetailsModal_@item.Id">
+                        Chi tiết
+                    </button>
+                    @if (item.Status == "Chờ Xác nhận")
+                    {
+                        <form asp-action="Confirm" asp-route-id="@item.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm ms-1">Xác nhận</button>
+                        </form>
+                        <form asp-action="Cancel" asp-route-id="@item.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm ms-1">Hủy</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@foreach (var order in Model)
+{
+    <div class="modal fade" id="orderDetailsModal_@order.Id" tabindex="-1" aria-labelledby="orderDetailsModalLabel_@order.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel_@order.Id">Chi tiết Đơn hàng #@order.Id</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Khách hàng:</strong> @order.Customer?.FullName (@order.Customer?.Email)</p>
+                    <p><strong>Ngày đặt:</strong> @order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Tổng tiền:</strong> @order.TotalPrice VNĐ</p>
+                    <p><strong>Địa chỉ giao hàng:</strong> @order.ShippingAddress</p>
+                    @if (!string.IsNullOrEmpty(order.Notes))
+                    {
+                        <p><strong>Ghi chú:</strong> @order.Notes</p>
+                    }
+                    <p><strong>Trạng thái:</strong> @order.Status</p>
+
+                    <h6 class="mt-4">Sản phẩm trong đơn:</h6>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Giá đơn</th>
+                                <th>Kho</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <tr>
+                                    <td>@item.Product?.Name</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.Price VNĐ</td>
+                                    <td>@item.Warehouse?.Name</td>
+                                    <td>@((item.Price * item.Quantity).ToString("N0")) VNĐ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,19 @@
+﻿@model VoTrongHung2280601119.Models.OrderDistribution
+
+@{
+    ViewData["Title"] = "Xác nhận đặt hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container text-center py-5">
+    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+    <h1 class="display-4 text-success mt-3">Đặt hàng thành công!</h1>
+    <p class="lead">Cảm ơn bạn đã đặt hàng. Đơn hàng của bạn đã được tiếp nhận và đang chờ xác nhận.</p>
+    <p class="h5">Mã đơn hàng của bạn là: <strong>#@Model.Id</strong></p>
+    <p>Chúng tôi sẽ liên hệ với bạn sớm nhất để xác nhận đơn hàng.</p>
+
+    <div class="mt-4">
+        <a asp-controller="Order" asp-action="History" class="btn btn-info btn-lg">Xem lịch sử đơn hàng</a>
+        <a asp-controller="Product" asp-action="Index" class="btn btn-primary btn-lg ms-2">Tiếp tục mua sắm</a>
+    </div>
+</div>

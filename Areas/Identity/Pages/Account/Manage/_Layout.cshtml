@@ -1,0 +1,23 @@
+﻿@{
+    // Đảm bảo Layout này sử dụng Layout chung của ứng dụng
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Quản lý tài khoản của bạn</h2>
+
+<div>
+    <h4>Thay đổi cài đặt tài khoản của bạn</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" /> @* ĐÂY LÀ CHỖ GỌI SIDEBAR ĐIỀU HƯỚNG *@
+        </div>
+        <div class="col-md-9">
+            @RenderBody() @* ĐÂY LÀ NƠI NỘI DUNG CHÍNH CỦA TỪNG TRANG CON (Profile, Email, 2FA...) SẼ ĐƯỢC RENDER *@
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}
