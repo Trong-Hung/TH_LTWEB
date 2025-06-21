@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services; // Cần cho IEmailSender
 using Microsoft.EntityFrameworkCore;
@@ -59,7 +61,26 @@ builder.Services.AddScoped<IMomoService, MomoService>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Cấu hình xác thực
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; //Xác thực tùy chọn đăng nhập
+    options.DefaultChallengeScheme = "Google"; //đăng nhập bằng Google
+})
+.AddCookie() //lưu phiên đăng nhập
+.AddGoogle("Google", options => //cấu hình  đăng nhập với Google OAuth 2.0.
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    //lấy thông tin từ appsettings.json
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+    options.SaveTokens = true;
 
+    options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.NameIdentifier, "sub");
+    options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Name, "name");
+    options.ClaimActions.MapJsonKey(System.Security.Claims.ClaimTypes.Email, "email");
+});
 var app = builder.Build();
 
 // Seed Data: Chạy khi ứng dụng khởi động để tạo Roles và Admin gốc
@@ -74,6 +95,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // Phục vụ các file tĩnh (CSS, JS, hình ảnh)

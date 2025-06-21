@@ -157,6 +157,38 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
+                // ****** THÊM PHẦN NÀY ĐỂ GÁN GIÁ TRỊ CHO FullName ******
+                // Google thường cung cấp ClaimTypes.Name cho tên đầy đủ.
+                // Hoặc bạn có thể kết hợp GivenName và Surname nếu muốn.
+
+                var fullNameClaim = info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Name);
+                var givenNameClaim = info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.GivenName);
+                var surnameClaim = info.Principal.FindFirstValue(System.Security.Claims.ClaimTypes.Surname);
+
+                if (!string.IsNullOrEmpty(fullNameClaim))
+                {
+                    user.FullName = fullNameClaim;
+                }
+                else if (!string.IsNullOrEmpty(givenNameClaim) && !string.IsNullOrEmpty(surnameClaim))
+                {
+                    user.FullName = $"{givenNameClaim} {surnameClaim}".Trim();
+                }
+                else if (!string.IsNullOrEmpty(givenNameClaim))
+                {
+                    user.FullName = givenNameClaim;
+                }
+                else if (!string.IsNullOrEmpty(surnameClaim))
+                {
+                    user.FullName = surnameClaim;
+                }
+                else
+                {
+                    // Fallback: Nếu không tìm thấy tên, sử dụng phần tên trước @ của email hoặc một giá trị mặc định.
+                    user.FullName = Input.Email.Split('@')[0] ?? "Người dùng mới";
+                    // Hoặc một giá trị mặc định khác, ví dụ: "Người dùng Google"
+                }
+                // ******************************************************
+
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
