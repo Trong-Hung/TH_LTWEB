@@ -7,6 +7,7 @@ using System.IO; // Cần cho xử lý file ảnh
 using System.Threading.Tasks;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
+using VoTrongHung2280601119.Helpers; // Thêm using này ở đầu file
 
 namespace VoTrongHung_2280601119.Areas.Admin.Controllers
 {
@@ -42,6 +43,8 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             return View();
         }
 
+
+
         // POST: Admin/Product/Create
         // Xử lý tạo sản phẩm mới và upload ảnh
         [HttpPost]
@@ -50,6 +53,9 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Tự động tạo slug từ Name
+                product.Slug = UrlHelper.GenerateSlug(product.Name);
+
                 if (imageUrlFile != null)
                 {
                     product.ImageUrl = await SaveImage(imageUrlFile); // Gọi hàm lưu ảnh
@@ -63,11 +69,30 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             return View(product);
         }
 
-        // GET: Admin/Product/Edit/5
-        // Hiển thị form chỉnh sửa sản phẩm
-        public async Task<IActionResult> Edit(int id)
+        //Các sản phẩm đã có sẵn trong database (tạo từ trước)
+        //sẽ chưa có Slug → cần viết đoạn code để
+        //cập nhật Slug cho những sản phẩm
+        public async Task<IActionResult> UpdateAllSlugs()
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            var products = await _productRepository.GetAllAsync();
+            foreach (var p in products)
+            {
+                if (string.IsNullOrEmpty(p.Slug))
+                {
+                    p.Slug = UrlHelper.GenerateSlug(p.Name);
+                    await _productRepository.UpdateAsync(p);
+                }
+            }
+            return Content(" Đã cập nhật Slug cho tất cả sản phẩm chưa có Slug.");
+
+        }
+
+        // GET: Admin/Products/Edit/ten-san-pham
+        [Route("Admin/Products/Edit/{slug}")] // Thêm Route mới
+        public async Task<IActionResult> Edit(string slug) // Đổi tham số thành string slug
+        {
+            // Tìm sản phẩm bằng slug
+            var product = await _productRepository.GetBySlugAsync(slug);
             if (product == null)
             {
                 return NotFound();
@@ -98,6 +123,9 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             {
                 try
                 {
+                    // Tự động tạo slug từ Name khi sửa
+                    product.Slug = UrlHelper.GenerateSlug(product.Name);
+
                     if (imageUrlFile != null) // Nếu có ảnh mới upload
                     {
                         // Xóa ảnh cũ nếu tồn tại
@@ -137,11 +165,12 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             return View(product);
         }
 
-        // GET: Admin/Product/Delete/5
-        // Hiển thị trang xác nhận xóa sản phẩm
-        public async Task<IActionResult> Delete(int id)
+        // GET: Admin/Products/Delete/ten-san-pham
+        [Route("Admin/Products/Delete/{slug}")] // Thêm Route mới
+        public async Task<IActionResult> Delete(string slug) // Đổi tham số thành string slug
         {
-            var product = await _productRepository.GetByIdAsync(id);
+            // Tìm sản phẩm bằng slug
+            var product = await _productRepository.GetBySlugAsync(slug);
             if (product == null)
             {
                 return NotFound();

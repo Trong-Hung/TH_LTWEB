@@ -12,8 +12,8 @@ using VoTrongHung2280601119.Models;
 namespace VoTrongHung2280601119.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250618012202_Initial")]
-    partial class Initial
+    [Migration("20250621125448_AddSlugToCategory")]
+    partial class AddSlugToCategory
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -240,6 +240,10 @@ namespace VoTrongHung2280601119.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
@@ -351,6 +355,10 @@ namespace VoTrongHung2280601119.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");

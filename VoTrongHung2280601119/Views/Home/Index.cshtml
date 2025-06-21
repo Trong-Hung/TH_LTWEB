@@ -25,7 +25,7 @@
                         <p class="card-text flex-grow-1">@Html.DisplayFor(modelItem => item.Description)</p>
                         <p class="card-text"><strong>Giá: @Html.DisplayFor(modelItem => item.Price) VNĐ</strong></p>
                         <p class="card-text text-muted">Tồn kho: @Html.DisplayFor(modelItem => item.Stock) @Html.DisplayFor(modelItem => item.Unit)</p>
-                        <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary mt-auto">Xem chi tiết</a>
+                        <a asp-controller="Product" asp-action="Details" asp-route-slug="@item.Slug" class="btn btn-primary mt-auto">Xem chi tiết</a>
                     </div>
                 </div>
             </div>

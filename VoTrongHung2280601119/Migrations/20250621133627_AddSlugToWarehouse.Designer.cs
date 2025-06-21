@@ -12,8 +12,8 @@ using VoTrongHung2280601119.Models;
 namespace VoTrongHung2280601119.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250617194248_FinalOrderCustomerFix")]
-    partial class FinalOrderCustomerFix
+    [Migration("20250621133627_AddSlugToWarehouse")]
+    partial class AddSlugToWarehouse
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -240,6 +240,10 @@ namespace VoTrongHung2280601119.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
@@ -254,7 +258,6 @@ namespace VoTrongHung2280601119.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CustomerId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Notes")
@@ -353,6 +356,10 @@ namespace VoTrongHung2280601119.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<string>("Slug")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -415,6 +422,10 @@ namespace VoTrongHung2280601119.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Warehouses");
@@ -475,9 +486,7 @@ namespace VoTrongHung2280601119.Migrations
                 {
                     b.HasOne("VoTrongHung2280601119.Models.ApplicationUser", "Customer")
                         .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CustomerId");
 
                     b.Navigation("Customer");
                 });

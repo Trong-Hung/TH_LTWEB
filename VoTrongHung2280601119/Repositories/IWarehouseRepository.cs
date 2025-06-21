@@ -8,6 +8,8 @@ namespace VoTrongHung2280601119.Repositories
     {
         Task<IEnumerable<Warehouse>> GetAllAsync();
         Task<Warehouse> GetByIdAsync(int id);
+        Task<Warehouse> GetBySlugAsync(string slug); // <-- Thêm dòng này
+      
         Task AddAsync(Warehouse warehouse);
         Task UpdateAsync(Warehouse warehouse);
         Task DeleteAsync(int id);

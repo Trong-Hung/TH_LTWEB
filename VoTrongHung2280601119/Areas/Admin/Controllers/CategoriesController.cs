@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
+using VoTrongHung2280601119.Helpers;
 
 namespace VoTrongHung_2280601119.Areas.Admin.Controllers
 {
@@ -39,17 +40,37 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                category.Slug = UrlHelper.GenerateSlug(category.Name); // <-- Thêm dòng này
                 await _categoryRepository.AddAsync(category);
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
         }
 
-        // GET: Admin/Category/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        // Thêm Action này vào CategoriesController.cs
+        public async Task<IActionResult> UpdateAllCategorySlugs()
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null) { return NotFound(); }
+            var categories = await _categoryRepository.GetAllAsync();
+            foreach (var category in categories)
+            {
+                if (string.IsNullOrEmpty(category.Slug))
+                {
+                    category.Slug = UrlHelper.GenerateSlug(category.Name);
+                    await _categoryRepository.UpdateAsync(category);
+                }
+            }
+            return Content("Đã cập nhật Slug cho tất cả danh mục.");
+        }
+
+        // GET: Admin/Categories/Edit/ten-danh-muc
+        [Route("Admin/Categories/Edit/{slug}")] // Thêm Route
+        public async Task<IActionResult> Edit(string slug) // Đổi tham số
+        {
+            var category = await _categoryRepository.GetBySlugAsync(slug); // Tìm bằng slug
+            if (category == null)
+            {
+                return NotFound();
+            }
             return View(category);
         }
 
@@ -64,6 +85,7 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             {
                 try
                 {
+                    category.Slug = UrlHelper.GenerateSlug(category.Name); // <-- Thêm dòng này
                     await _categoryRepository.UpdateAsync(category);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -76,11 +98,15 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             return View(category);
         }
 
-        // GET: Admin/Category/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        // GET: Admin/Categories/Delete/ten-danh-muc
+        [Route("Admin/Categories/Delete/{slug}")] // Thêm Route
+        public async Task<IActionResult> Delete(string slug) // Đổi tham số
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null) { return NotFound(); }
+            var category = await _categoryRepository.GetBySlugAsync(slug); // Tìm bằng slug
+            if (category == null)
+            {
+                return NotFound();
+            }
             return View(category);
         }
 

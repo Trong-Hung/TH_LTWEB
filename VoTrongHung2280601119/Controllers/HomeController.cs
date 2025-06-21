@@ -7,10 +7,12 @@ using VoTrongHung2280601119.Repositories;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
 
+
 namespace VoTrongHung_2280601119.Controllers
 {
     public class HomeController : Controller
-    {
+    { 
+
         private readonly ILogger<HomeController> _logger;
         private readonly IProductRepository _productRepository; // Bổ sung: Inject IProductRepository
 
@@ -20,11 +22,25 @@ namespace VoTrongHung_2280601119.Controllers
             _productRepository = productRepository; // Gán IProductRepository
         }
 
-        // GET: / hoặc /Home/Index (Trang chủ sẽ hiển thị danh sách sản phẩm)
-        public async Task<IActionResult> Index()
+        // Sửa lại Action Index để nhận tham số tìm kiếm
+        public async Task<IActionResult> Index(string searchString)
         {
-            var products = await _productRepository.GetAllAsync(); // Lấy tất cả sản phẩm
-            return View(products); // Truyền danh sách sản phẩm sang View
+            IEnumerable<Product> products;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                // Nếu có từ khóa, gọi phương thức tìm kiếm mới trong repository
+                products = await _productRepository.SearchAsync(searchString);
+            }
+            else
+            {
+                // Nếu không, lấy tất cả sản phẩm như cũ
+                products = await _productRepository.GetAllAsync();
+            }
+
+            ViewData["CurrentFilter"] = searchString; // Lưu lại từ khóa để hiển thị trên View
+
+            return View(products);
         }
 
         public IActionResult Privacy()

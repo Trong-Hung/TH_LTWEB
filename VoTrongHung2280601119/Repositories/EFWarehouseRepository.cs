@@ -47,5 +47,10 @@ namespace VoTrongHung2280601119.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        // Thêm phương thức mới này vào
+        public async Task<Warehouse> GetBySlugAsync(string slug)
+        {
+            return await _context.Warehouses.FirstOrDefaultAsync(w => w.Slug == slug);
+        }
     }
 }

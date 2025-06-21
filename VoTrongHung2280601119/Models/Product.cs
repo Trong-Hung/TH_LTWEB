@@ -28,5 +28,9 @@ namespace VoTrongHung2280601119.Models
         // Nếu có Nhà cung cấp hoặc Kho mặc định, thêm FK ở đây
         public int? SupplierId { get; set; } // Có thể thêm Supplier Model sau
         public int? DefaultWarehouseId { get; set; } // Có thể thêm Warehouse Model sau
+
+        // Cột Slug sẽ dùng để chứa URL thân thiện, ví dụ tradao
+        [StringLength(150)]
+        public string? Slug { get; set; }
     }
 }

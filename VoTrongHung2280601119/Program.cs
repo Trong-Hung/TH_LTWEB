@@ -115,6 +115,12 @@ app.MapControllerRoute(
     name: "Admin",
     pattern: "{area:exists}/{controller=Products}/{action=Index}/{id?}");
 
+//Thêm route thân thiện vào Program.cs
+app.MapControllerRoute(
+    name: "friendlyProduct",
+    pattern: "{slug}-{id}.html",
+    defaults: new { controller = "Product", action = "Display" });
+
 // Route mặc định cho Customer (Controller và Views của Customer sẽ nằm ở gốc)
 // Trang chủ sẽ hiển thị danh sách sản phẩm cho Customer
 app.MapControllerRoute(

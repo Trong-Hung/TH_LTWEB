@@ -40,5 +40,7 @@ namespace VoTrongHung2280601119.Controllers // Namespace này là gốc
 
             return View(product);
         }
+
+      
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
+using VoTrongHung2280601119.Helpers;
 
 namespace VoTrongHung_2280601119.Areas.Admin.Controllers
 {
@@ -45,11 +46,15 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             return View(warehouse);
         }
 
-        // GET: Admin/Warehouse/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        /// GET: Admin/Warehouses/Edit/ten-kho
+        [Route("Admin/Warehouses/Edit/{slug}")]
+        public async Task<IActionResult> Edit(string slug)
         {
-            var warehouse = await _warehouseRepository.GetByIdAsync(id);
-            if (warehouse == null) { return NotFound(); }
+            var warehouse = await _warehouseRepository.GetBySlugAsync(slug);
+            if (warehouse == null)
+            {
+                return NotFound();
+            }
             return View(warehouse);
         }
 
@@ -76,11 +81,15 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
             return View(warehouse);
         }
 
-        // GET: Admin/Warehouse/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        // GET: Admin/Warehouses/Delete/ten-kho
+        [Route("Admin/Warehouses/Delete/{slug}")]
+        public async Task<IActionResult> Delete(string slug)
         {
-            var warehouse = await _warehouseRepository.GetByIdAsync(id);
-            if (warehouse == null) { return NotFound(); }
+            var warehouse = await _warehouseRepository.GetBySlugAsync(slug);
+            if (warehouse == null)
+            {
+                return NotFound();
+            }
             return View(warehouse);
         }
 
@@ -95,6 +104,31 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
                 await _warehouseRepository.DeleteAsync(id);
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Thêm Action này vào WarehousesController.cs
+
+        public async Task<IActionResult> UpdateAllWarehouseSlugs()
+        {
+            // Lấy tất cả các kho từ database
+            var warehouses = await _warehouseRepository.GetAllAsync();
+
+            // Duyệt qua từng kho
+            foreach (var warehouse in warehouses)
+            {
+                // Nếu kho nào chưa có slug
+                if (string.IsNullOrEmpty(warehouse.Slug))
+                {
+                    // Tạo slug mới từ tên của kho
+                    warehouse.Slug = UrlHelper.GenerateSlug(warehouse.Name);
+
+                    // Cập nhật lại thông tin kho đó trong database
+                    await _warehouseRepository.UpdateAsync(warehouse);
+                }
+            }
+
+            // Trả về một thông báo đơn giản để xác nhận đã hoàn thành
+            return Content("Đã cập nhật Slug cho tất cả các Kho.");
         }
     }
 }

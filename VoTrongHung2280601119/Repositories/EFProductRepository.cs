@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
+using Microsoft.EntityFrameworkCore; // Hãy chắc chắn bạn đã có using này
 
 namespace VoTrongHung2280601119.Repositories
 {
@@ -46,6 +47,51 @@ namespace VoTrongHung2280601119.Repositories
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        // THÊM PHƯƠNG THỨC MỚI NÀY VÀO
+        public async Task<Product> GetBySlugAsync(string slug)
+        {
+            // Tìm sản phẩm có slug khớp, và lấy luôn dữ liệu Category nếu có
+            return await _context.Products
+                                 .Include(p => p.Category)
+                                 .FirstOrDefaultAsync(p => p.Slug == slug);
+        }
+
+        // THÊM PHẦN TRIỂN KHAI CỦA PHƯƠNG THỨC MỚI VÀO ĐÂY
+        public async Task<IEnumerable<Product>> GetByCategoryIdAsync(int categoryId)
+        {
+            // Truy vấn các sản phẩm có CategoryId khớp với id được truyền vào
+            return await _context.Products
+                                 .Where(p => p.CategoryId == categoryId)
+                                 .Include(p => p.Category) // Lấy kèm dữ liệu của Category
+                                 .ToListAsync();
+        }
+
+        // Thêm phương thức mới này vào lớp EFProductRepository tìm kiếm
+        // Thay thế phương thức SearchAsync cũ bằng phương thức này
+        // Thêm phương thức mới này vào lớp EFProductRepository
+
+        public async Task<IEnumerable<Product>> SearchAsync(string keyword)
+        {
+            var lowerKeyword = keyword.ToLower(); // Chuyển từ khóa về chữ thường một lần
+
+            return await _context.Products
+                                 .Include(p => p.Category) // Lấy kèm dữ liệu của Category để tìm kiếm
+                                 .Where(p =>
+                                     // Tìm trong Tên sản phẩm
+                                     p.Name.ToLower().Contains(lowerKeyword) ||
+
+                                     // Tìm trong Mô tả sản phẩm
+                                     p.Description.ToLower().Contains(lowerKeyword) ||
+
+                                     // Tìm trong Đơn vị tính của sản phẩm
+                                     (p.Unit != null && p.Unit.ToLower().Contains(lowerKeyword)) ||
+
+                                     // Tìm trong Tên Danh mục của sản phẩm
+                                     (p.Category != null && p.Category.Name.ToLower().Contains(lowerKeyword))
+                                 )
+                                 .ToListAsync();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
+using Microsoft.EntityFrameworkCore; // Nhớ thêm using này
 
 namespace VoTrongHung2280601119.Repositories
 {
@@ -24,6 +25,11 @@ namespace VoTrongHung2280601119.Repositories
         public async Task<Category> GetByIdAsync(int id)
         {
             return await _context.Categories.FindAsync(id);
+        }
+        // Thêm phương thức mới này vào
+        public async Task<Category> GetBySlugAsync(string slug)
+        {
+            return await _context.Categories.FirstOrDefaultAsync(c => c.Slug == slug);
         }
 
         public async Task AddAsync(Category category)

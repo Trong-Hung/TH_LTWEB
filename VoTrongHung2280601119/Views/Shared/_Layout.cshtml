@@ -44,8 +44,18 @@
                                 <i class="bi bi-cart-fill"></i> Giỏ hàng (@cartCount)
                             </a>
                         </li>
-
                     </ul>
+
+                    @* BẮT ĐẦU THÊM TỪ ĐÂY *@
+                    <form class="d-flex" asp-controller="Home" asp-action="Index" method="get" id="search-form" style="position: relative;">
+                        <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" name="searchString" id="search-input" autocomplete="off" value="@ViewData["CurrentFilter"]">
+                        <button class="btn btn-outline-success" type="submit">Tìm</button>
+
+                        @* Div này dùng để hiển thị các gợi ý *@
+                        <div id="search-suggestions-container"></div>
+                    </form>
+                    @* KẾT THÚC PHẦN THÊM *@
+
                     <partial name="_LoginPartial" />
                 </div>
             </div>
