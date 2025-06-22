@@ -12,8 +12,8 @@ using VoTrongHung2280601119.Models;
 namespace VoTrongHung2280601119.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250618012202_Initial")]
-    partial class Initial
+    [Migration("20250621103154_InitialFullDatabaseSetup")]
+    partial class InitialFullDatabaseSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
