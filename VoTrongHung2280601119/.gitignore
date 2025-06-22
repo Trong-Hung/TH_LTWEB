@@ -1,1 +1,29 @@
+# Visual Studio and IDE files/directories
 .vs/
+*.suo
+*.user
+*.bak
+*.log
+.idea/ # For JetBrains Rider if used
+
+# Build output (binaries and temporary files)
+[Bb]in/
+[Oo]bj/
+
+# Package files
+*.nupkg
+*.snupkg
+
+# Common generated files for .NET/C# projects
+# If your .csproj.user or .vscode folder also create local settings you don't want to commit, add them
+# For example:
+# *.csproj.user
+# .vscode/
+
+# Example of appsettings.json handling:
+# If appsettings.json contains sensitive info or local-only configs:
+# appsettings.json
+# appsettings.*.json # Wildcard for environment-specific configs
+#
+# If you need appsettings.json to be tracked and resolve conflicts manually, then DO NOT add it here.
+# Otherwise, if it's meant to be local/ignored, then add it.
