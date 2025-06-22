@@ -13,6 +13,6 @@ namespace VoTrongHung2280601119.Models
         public int Capacity { get; set; } // Sức chứa
 
         // DÒNG QUAN TRỌNG: Hãy chắc chắn bạn đã có dòng này để lưu slug URL thân thiện
-        public string Slug { get; set; }
+        public string? Slug { get; set; }
     }
 }

@@ -1,1 +1,36 @@
+# File này chứa danh sách các file và thư mục mà Git sẽ bỏ qua.
+# Bình luận trong file .gitignore bắt đầu bằng dấu #
+
+# Thư mục của Visual Studio
 .vs/
+
+# Các file do người dùng tự cấu hình (user-specific)
+*.user
+*.suo
+
+# Thư mục chứa kết quả build của .NET.
+# [Bb]in/ sẽ khớp với "bin/" và "Bin/"
+[Bb]in/
+[Oo]bj/
+
+# File chứa bí mật người dùng (User Secrets)
+secrets.json
+
+# Các file publish
+[Pp]ublish/
+[Rr]elease/
+
+# Các file log
+*.log
+*.log.*
+
+# Các file tạm thời
+*.tmp
+
+# Các file của hệ điều hành
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# macOS
+.DS_Store

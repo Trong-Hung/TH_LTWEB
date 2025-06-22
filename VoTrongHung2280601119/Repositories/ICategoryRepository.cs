@@ -12,5 +12,7 @@ namespace VoTrongHung2280601119.Repositories
         Task AddAsync(Category category);
         Task UpdateAsync(Category category);
         Task DeleteAsync(int id);
+
+        Task<Category> GetByNameAsync(string name);
     }
 }
