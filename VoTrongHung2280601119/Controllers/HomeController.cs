@@ -6,6 +6,7 @@ using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
 using VoTrongHung2280601119.Models;
 using VoTrongHung2280601119.Repositories;
+using Microsoft.AspNetCore.Localization;
 
 namespace VoTrongHung_2280601119.Controllers
 {
@@ -37,5 +38,6 @@ namespace VoTrongHung_2280601119.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
     }
 }

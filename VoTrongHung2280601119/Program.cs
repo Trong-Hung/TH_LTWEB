@@ -9,6 +9,10 @@ using VoTrongHung2280601119.Repositories;
 using VoTrongHung2280601119.Repositories; // Đảm bảo có using này cho IMomoService
 using VoTrongHung2280601119.SeedData; // Cần cho ApplicationDbInitializer
 using VoTrongHung2280601119.Services; // Cần cho EmailSender (giả)
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +61,16 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoService, MomoService>();
 
+// Bổ sung cấu hình cho localization
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("vi") };
+
+    options.DefaultRequestCulture = new RequestCulture("vi");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -96,6 +110,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Áp dụng cấu hình localization
+var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
+app.UseRequestLocalization(locOptions.Value);
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // Phục vụ các file tĩnh (CSS, JS, hình ảnh)
@@ -113,7 +131,7 @@ app.MapRazorPages(); // Mapping các Razor Pages của Identity UI
 // Route cho Admin Area (Controller và Views của Admin sẽ nằm trong đây)
 app.MapControllerRoute(
     name: "Admin",
-    pattern: "{area:exists}/{controller=Products}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 // Route mặc định cho Customer (Controller và Views của Customer sẽ nằm ở gốc)
 // Trang chủ sẽ hiển thị danh sách sản phẩm cho Customer

@@ -1,0 +1,101 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    var revenue = ViewData["TotalRevenue"] ?? 0;
+    var userCount = ViewData["UserCount"];
+    var productCount = ViewData["ProductCount"];
+    var orderCount = ViewData["OrderCount"];
+    var pendingOrders = ViewData["PendingOrders"];
+    var labels = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ChartLabels);
+    var data = Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.ChartData);
+}
+
+<h1 class="mb-4">Admin Dashboard</h1>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card text-bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Người dùng</h5>
+                <h3 class="card-text">@userCount</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Sản phẩm</h5>
+                <h3 class="card-text">@productCount</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Đơn hàng</h5>
+                <h3 class="card-text">@orderCount</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Đơn đang xử lý</h5>
+                <h3 class="card-text">@pendingOrders</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Tổng doanh thu</h5>
+                <h3 class="card-text">@string.Format("{0:N0} đ", revenue)</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h4>Biểu đồ doanh thu trong tháng</h4>
+        <canvas id="revenueChart" height="100"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = @Html.Raw(labels);
+        const data = @Html.Raw(data);
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu theo ngày (VNĐ)',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('vi-VN') + ' đ';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
