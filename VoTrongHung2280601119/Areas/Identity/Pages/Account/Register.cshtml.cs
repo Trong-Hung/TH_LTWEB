@@ -1,10 +1,9 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
+﻿// File: Areas/Identity/Pages/Account/Register.cshtml.cs (Đã sửa lỗi)
 #nullable disable
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services; // QUAN TRỌNG: Cần using này
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
@@ -18,6 +17,8 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using VoTrongHung2280601119.Models;
+// Giả sử lớp SD của bạn nằm ở đây, nếu không hãy thêm using phù hợp
+// using VoTrongHung2280601119.Utilities; 
 
 namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
 {
@@ -28,18 +29,21 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly IEmailSender _emailSender; // <-- 1. KHAI BÁO FIELD
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            IEmailSender emailSender) // <-- 2. INJECT VÀO CONSTRUCTOR
         {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
+            _emailSender = emailSender; // <-- 3. GÁN GIÁ TRỊ
         }
 
         [BindProperty]
@@ -94,10 +98,39 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    await _userManager.AddToRoleAsync(user, SD.Role_Customer); // GÁN ROLE_CUSTOMER MẶC ĐỊNH
+                    // Giữ lại logic gán Role mặc định của bạn
+                    await _userManager.AddToRoleAsync(user, SD.Role_Customer);
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    // ===================================================================
+                    // === BẮT ĐẦU ĐOẠN CODE GỬI EMAIL XÁC NHẬN ===
+                    // ===================================================================
+                    var userId = await _userManager.GetUserIdAsync(user);
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    var callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        protocol: Request.Scheme);
+
+                    await _userManager.AddToRoleAsync(user, SD.Role_Customer);
+
+                    await _emailSender.SendEmailAsync(Input.Email, "Xác nhận địa chỉ email của bạn",
+                        $"Cảm ơn bạn đã đăng ký. Vui lòng xác nhận tài khoản của bạn bằng cách <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>nhấn vào đây</a>.");
+
+                    // === KẾT THÚC ĐOẠN CODE GỬI EMAIL XÁC NHẬN ===
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        // Nếu BẮT BUỘC xác thực, chuyển hướng đến trang thông báo
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                    }
+                    else
+                    {
+                        // Nếu KHÔNG bắt buộc, đăng nhập người dùng luôn
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
                 }
                 foreach (var error in result.Errors)
                 {

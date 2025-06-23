@@ -9,5 +9,7 @@ namespace VoTrongHung2280601119.Models
         [Required(ErrorMessage = "Tên danh mục là bắt buộc."), StringLength(50)]
         public string Name { get; set; }
         public List<Product>? Products { get; set; } // Quan hệ 1-n với Product
+
+        public string? Slug { get; set; } // <-- Thêm dòng này để lưu slug URL thân thiện
     }
 }

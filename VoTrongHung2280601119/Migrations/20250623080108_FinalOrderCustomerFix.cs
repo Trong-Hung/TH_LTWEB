@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VoTrongHung2280601119.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialFullDatabaseSetup : Migration
+    public partial class FinalOrderCustomerFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,11 +57,25 @@ namespace VoTrongHung2280601119.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatRooms",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatRooms", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,7 +86,8 @@ namespace VoTrongHung2280601119.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: false)
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -223,7 +238,8 @@ namespace VoTrongHung2280601119.Migrations
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     SupplierId = table.Column<int>(type: "int", nullable: true),
-                    DefaultWarehouseId = table.Column<int>(type: "int", nullable: true)
+                    DefaultWarehouseId = table.Column<int>(type: "int", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -234,6 +250,53 @@ namespace VoTrongHung2280601119.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserChatRoom",
+                columns: table => new
+                {
+                    ChatRoomsId = table.Column<int>(type: "int", nullable: false),
+                    UsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUserChatRoom", x => new { x.ChatRoomsId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserChatRoom_AspNetUsers_UsersId",
+                        column: x => x.UsersId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserChatRoom_ChatRooms_ChatRoomsId",
+                        column: x => x.ChatRoomsId,
+                        principalTable: "ChatRooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RoomName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ChatRoomId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_ChatRooms_ChatRoomId",
+                        column: x => x.ChatRoomId,
+                        principalTable: "ChatRooms",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -292,6 +355,11 @@ namespace VoTrongHung2280601119.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserChatRoom_UsersId",
+                table: "ApplicationUserChatRoom",
+                column: "UsersId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -331,6 +399,11 @@ namespace VoTrongHung2280601119.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messages_ChatRoomId",
+                table: "Messages",
+                column: "ChatRoomId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDistributions_CustomerId",
                 table: "OrderDistributions",
                 column: "CustomerId");
@@ -365,6 +438,9 @@ namespace VoTrongHung2280601119.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ApplicationUserChatRoom");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -380,6 +456,9 @@ namespace VoTrongHung2280601119.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
@@ -387,6 +466,9 @@ namespace VoTrongHung2280601119.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "ChatRooms");
 
             migrationBuilder.DropTable(
                 name: "OrderDistributions");

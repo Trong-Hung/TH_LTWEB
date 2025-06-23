@@ -12,8 +12,8 @@ using VoTrongHung2280601119.Models;
 namespace VoTrongHung2280601119.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250621103154_InitialFullDatabaseSetup")]
-    partial class InitialFullDatabaseSetup
+    [Migration("20250623080231_AddMessageTable")]
+    partial class AddMessageTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,21 @@ namespace VoTrongHung2280601119.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ApplicationUserChatRoom", b =>
+                {
+                    b.Property<int>("ChatRoomsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ChatRoomsId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("ApplicationUserChatRoom");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -240,9 +255,65 @@ namespace VoTrongHung2280601119.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("VoTrongHung2280601119.Models.ChatRoom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatRooms");
+                });
+
+            modelBuilder.Entity("VoTrongHung2280601119.Models.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ChatRoomId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatRoomId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("VoTrongHung2280601119.Models.OrderDistribution", b =>
@@ -352,6 +423,10 @@ namespace VoTrongHung2280601119.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<string>("Slug")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
@@ -414,9 +489,27 @@ namespace VoTrongHung2280601119.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Warehouses");
+                });
+
+            modelBuilder.Entity("ApplicationUserChatRoom", b =>
+                {
+                    b.HasOne("VoTrongHung2280601119.Models.ChatRoom", null)
+                        .WithMany()
+                        .HasForeignKey("ChatRoomsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VoTrongHung2280601119.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -468,6 +561,13 @@ namespace VoTrongHung2280601119.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("VoTrongHung2280601119.Models.Message", b =>
+                {
+                    b.HasOne("VoTrongHung2280601119.Models.ChatRoom", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatRoomId");
                 });
 
             modelBuilder.Entity("VoTrongHung2280601119.Models.OrderDistribution", b =>
@@ -531,6 +631,11 @@ namespace VoTrongHung2280601119.Migrations
             modelBuilder.Entity("VoTrongHung2280601119.Models.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("VoTrongHung2280601119.Models.ChatRoom", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("VoTrongHung2280601119.Models.OrderDistribution", b =>

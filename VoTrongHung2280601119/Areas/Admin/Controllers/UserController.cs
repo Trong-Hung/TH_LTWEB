@@ -24,8 +24,11 @@ namespace VoTrongHung_2280601119.Areas.Admin.Controllers
         {
             // Lấy tất cả người dùng, trừ admin@dist.com
             var users = await _userManager.Users.Where(u => u.Email != "admin@dist.com").ToListAsync();
+            var customers = await _userManager.GetUsersInRoleAsync("Customer");
+            ViewData["Title"] = "Danh sách Khách hàng";
             return View(users);
         }
+
 
         // POST: Admin/User/ToggleStatus/userId (Enable/Disable người dùng)
         [HttpPost]

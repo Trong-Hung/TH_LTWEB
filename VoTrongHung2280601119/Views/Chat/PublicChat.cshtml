@@ -1,0 +1,42 @@
+﻿@model IEnumerable<VoTrongHung2280601119.Models.Message>
+@{
+    ViewData["Title"] = "Phòng Chat Chung";
+}
+
+<h2 class="text-center">@ViewData["Title"]</h2>
+<hr />
+<div id="messagesList" class="border p-3 mb-3" style="height: 400px; overflow-y: scroll;">
+    @foreach (var message in Model)
+    {
+        <li style="list-style-type: none;"><strong>@message.UserName:</strong> @message.Content</li>
+    }
+</div>
+<div class="input-group">
+    <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn..." />
+    <button class="btn btn-primary" id="sendButton">Gửi</button>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        const roomName = "General";
+
+        connection.on("ReceiveMessage", (user, message) => {
+            const li = document.createElement("li");
+            li.style.listStyleType = "none";
+            li.innerHTML = `<strong>${user}:</strong> ${message}`;
+            document.getElementById("messagesList").appendChild(li);
+        });
+
+        connection.start().then(() => {
+            connection.invoke("AddToGroup", roomName);
+        });
+
+        document.getElementById("sendButton").addEventListener("click", () => {
+            const message = document.getElementById("messageInput").value;
+            connection.invoke("SendMessage", message, roomName);
+            document.getElementById("messageInput").value = "";
+        });
+    </script>
+}

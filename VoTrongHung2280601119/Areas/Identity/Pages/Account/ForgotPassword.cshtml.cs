@@ -55,7 +55,11 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                
+                // === THAY ĐỔI NẰM Ở ĐÂY ===
+                // Dòng cũ: if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                // Đã được sửa thành:
+                if (user == null)
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToPage("./ForgotPasswordConfirmation");
@@ -71,6 +75,7 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
+                // Dòng này bây giờ chắc chắn sẽ được gọi
                 await _emailSender.SendEmailAsync(
                     Input.Email,
                     "Reset Password",

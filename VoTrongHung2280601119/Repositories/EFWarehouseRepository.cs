@@ -26,6 +26,11 @@ namespace VoTrongHung2280601119.Repositories
             return await _context.Warehouses.FindAsync(id);
         }
 
+        public async Task<Warehouse> GetBySlugAsync(string slug)
+        {
+            return await _context.Warehouses.FirstOrDefaultAsync(w => w.Slug == slug);
+        }
+
         public async Task AddAsync(Warehouse warehouse)
         {
             _context.Warehouses.Add(warehouse);

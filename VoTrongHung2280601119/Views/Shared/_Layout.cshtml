@@ -36,6 +36,23 @@
                         </li>
 
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Phòng Chat Chung</a>
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            // Nếu là Admin, hiển thị link đến danh sách khách hàng
+                            if (User.IsInRole("ROLE_ADMIN")) // Đã sửa từ "Admin" sang "ROLE_ADMIN"
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-info fw-bold" asp-area="Admin" asp-controller="Chat" asp-action="Index">Hỗ trợ Khách hàng</a>
+                                </li>
+                            }
+                            // Nếu là Customer, hiển thị nút chat với Admin
+                           
+                        }
+                        
+                        <li class="nav-item">
                             @{
                                 var cart = Context.Session.GetObjectFromJson<VoTrongHung2280601119.Models.ShoppingCart>("Cart");
                                 var cartCount = cart?.Items.Sum(item => item.Quantity) ?? 0;
@@ -44,8 +61,18 @@
                                 <i class="bi bi-cart-fill"></i> Giỏ hàng (@cartCount)
                             </a>
                         </li>
-
                     </ul>
+
+                    @* BẮT ĐẦU THÊM TỪ ĐÂY *@
+                    <form class="d-flex" asp-controller="Home" asp-action="Index" method="get" id="search-form" style="position: relative;">
+                         <input class="form-control me-2" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" name="searchString" id="search-input" autocomplete="off" value="@ViewData["CurrentFilter"]">
+                         <button class="btn btn-outline-success" type="submit">Tìm</button>
+
+                     @* Div này dùng để hiển thị các gợi ý *@
+                     <div id="search-suggestions-container"></div>
+                    </form>
+                    @* KẾT THÚC PHẦN THÊM *@
+
                     <partial name="_LoginPartial" />
                 </div>
             </div>
@@ -67,17 +94,171 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
+            <div class="container">
+                <main role="main" class="pb-3">
+                    @* --- BẮT ĐẦU ĐOẠN MÃ THÊM MỚI --- *@
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Thông báo:</strong> @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Thành công:</strong> @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @* --- KẾT THÚC ĐOẠN MÃ THÊM MỚI --- *@
+
+                    @RenderBody()
+                </main>
+            </div>
+
             @RenderBody()
         </main>
     </div>
 
+    @if (SignInManager.IsSignedIn(User) && !User.IsInRole("ROLE_ADMIN")) // Sửa "Admin" thành "ROLE_ADMIN" cho nhất quán
+    {
+        // Lấy thông tin người dùng hiện tại
+        var currentUser = await UserManager.GetUserAsync(User);
+        // Tìm một admin để chat (lấy người đầu tiên trong danh sách)
+        var adminUser = (await UserManager.GetUsersInRoleAsync("ROLE_ADMIN")).FirstOrDefault(); // Sửa "Admin" thành "ROLE_ADMIN"
+
+        // Chỉ hiển thị widget nếu có ít nhất một admin trong hệ thống
+        if (adminUser != null && currentUser != null) // Thêm kiểm tra currentUser != null
+        {
+            var adminId = adminUser.Id;
+            var currentUserId = currentUser.Id;
+
+            // Tính toán roomName giống như trong ChatController.Support()
+            var supportRoomName = string.CompareOrdinal(currentUserId, adminId) < 0
+                ? $"{currentUserId}-{adminId}"
+                : $"{adminId}-{currentUserId}";
+
+            <div id="customerChatWidget" style="position:fixed; bottom:15px; right:15px; width:320px; border:1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background:white; z-index:1050; display:flex; flex-direction:column;">
+                <h6 id="chatWidgetHeader" class="bg-primary text-white p-2" style="cursor:pointer; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                    Hỗ trợ trực tuyến
+                    <span style="float:right;">&#9660;</span>
+                </h6>
+                <div id="chatWidgetBody" style="display:none;">
+                    <div id="customerMessages" style="height:250px; overflow-y:scroll; padding:10px; border-bottom: 1px solid #eee;"></div>
+                    <div class="p-2 d-flex">
+                        <input type="text" id="customerMessageInput" class="form-control me-2" placeholder="Nhập tin nhắn..." />
+                        <button id="customerSendButton" class="btn btn-sm btn-primary">Gửi</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    const chatConnection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+                    // Lấy roomName từ Razor, nó đã được tính toán ở trên server-side
+                    const supportRoomName = "@Html.Raw(supportRoomName)"; 
+                    const currentUserName = "@currentUser.UserName"; // Lấy UserName của user hiện tại
+
+                    const chatWidgetBody = document.getElementById('chatWidgetBody');
+                    const header = document.getElementById('chatWidgetHeader');
+                    const messagesDiv = document.getElementById("customerMessages");
+                    const sendButton = document.getElementById("customerSendButton");
+                    const messageInput = document.getElementById("customerMessageInput");
+
+                    // Chức năng ẩn/hiện widget
+                    header.addEventListener('click', () => {
+                        if (chatWidgetBody.style.display === 'none') {
+                            chatWidgetBody.style.display = 'block';
+                            header.querySelector('span').innerHTML = '&#9650;'; // Mũi tên lên
+                            
+                            // Load tin nhắn cũ khi mở widget
+                            // Lưu ý: Đây là cách đơn giản để lấy nội dung từ một View đã render.
+                            // Cách tốt hơn cho ứng dụng thực tế là tạo một API endpoint riêng (ví dụ: /api/chat/messages/{roomName})
+                            // để trả về dữ liệu tin nhắn dưới dạng JSON.
+                            fetch(`/Chat/GetMessagesWidget?roomName=${supportRoomName}`) // Sẽ cần tạo Action GetMessagesWidget trong ChatController
+                                .then(response => response.json())
+                                .then(data => {
+                                    messagesDiv.innerHTML = ""; // Xóa tin nhắn cũ trước khi thêm mới
+                                    data.forEach(item => {
+                                        const p = document.createElement("p");
+                                        p.classList.add('mb-1');
+                                        if (item.user === currentUserName) { // So sánh dựa trên UserName
+                                            p.innerHTML = `<strong>Bạn:</strong> ${item.message}`;
+                                            p.classList.add('text-end'); 
+                                        } else {
+                                            p.innerHTML = `<strong>${item.user}:</strong> ${item.message}`;
+                                        }
+                                        messagesDiv.appendChild(p);
+                                    });
+                                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                                })
+                                .catch(error => console.error("Lỗi khi tải lịch sử chat:", error));
+
+                        } else {
+                            chatWidgetBody.style.display = 'none';
+                            header.querySelector('span').innerHTML = '&#9660;'; // Mũi tên xuống
+                        }
+                    });
+
+                    // Gửi tin nhắn khi nhấn nút
+                    sendButton.addEventListener("click", function () {
+                        const msg = messageInput.value.trim(); // Loại bỏ khoảng trắng đầu cuối
+                        if (msg && supportRoomName) { 
+                            // Gọi phương thức SendMessage trên Hub, truyền roomName
+                            chatConnection.invoke("SendMessage", msg, supportRoomName).catch(err => console.error("Lỗi khi gửi tin nhắn từ widget:", err.toString()));
+                            messageInput.value = "";
+                            messageInput.focus();
+                        }
+                    });
+                    
+                    // Gửi tin nhắn khi nhấn Enter
+                    messageInput.addEventListener("keypress", function(event) {
+                        if (event.key === "Enter") {
+                            event.preventDefault(); 
+                            sendButton.click();
+                        }
+                    });
+
+                    // Lắng nghe và nhận tin nhắn từ Hub
+                    chatConnection.on("ReceiveMessage", (user, message, receivedRoomName) => { // Thêm receivedRoomName
+                        // Chỉ hiển thị tin nhắn nếu nó thuộc về phòng hiện tại của widget
+                        if (receivedRoomName === supportRoomName) {
+                            const p = document.createElement("p");
+                            p.classList.add('mb-1');
+                            
+                            if (user === currentUserName) { 
+                                p.innerHTML = `<strong>Bạn:</strong> ${message}`;
+                                p.classList.add('text-end'); 
+                            } else {
+                                p.innerHTML = `<strong>${user}:</strong> ${message}`; 
+                            }
+                            
+                            messagesDiv.appendChild(p);
+                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        }
+                    });
+
+                    // Bắt đầu kết nối đến Hub
+                    chatConnection.start().then(() => {
+                        // Khi kết nối thành công, join vào phòng hỗ trợ riêng của user này
+                        chatConnection.invoke("JoinRoom", supportRoomName).catch(err => console.error('Lỗi khi tham gia phòng hỗ trợ:', err.toString()));
+                    }).catch(err => console.error('SignalR Connection Error: ', err.toString()));
+                });
+            </script>
+        }
+    }
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - votronghung_2280601119 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -1,0 +1,108 @@
+﻿@model IEnumerable<ConversationViewModel>
+@{
+    ViewData["Title"] = "Hỗ trợ Khách hàng";
+}
+<div class="row">
+    <div class="col-md-4">
+        <h4>Các cuộc trò chuyện</h4>
+        <div id="conversationList" class="list-group">
+            @foreach (var convo in Model)
+            {
+                <a href="#" class="list-group-item list-group-item-action" data-room-name="@convo.RoomName">
+                    @convo.CustomerName
+                </a>
+            }
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div id="chat-container" style="display: none;">
+            <h4 id="chattingWith"></h4>
+            <hr />
+            <ul id="messagesList" class="border p-3 mb-3" style="height: 400px; overflow-y: scroll; list-style-type:none; padding-left:1rem;"></ul>
+            <div class="input-group">
+                <input type="text" id="messageInput" class="form-control" />
+                <button id="sendButton" class="btn btn-primary">Gửi</button>
+            </div>
+        </div>
+        <div id="placeholder" class="text-center text-muted mt-5">
+            <h5>Chọn một cuộc trò chuyện để bắt đầu</h5>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        let currentRoom = "";
+
+        function selectConversation(element) {
+            document.querySelectorAll("#conversationList a").forEach(link => link.classList.remove('active'));
+            element.classList.add('active');
+            element.classList.remove('fw-bold', 'text-danger');
+
+            if(currentRoom) connection.invoke("LeaveRoom", currentRoom).catch(err => console.error(err));
+            currentRoom = element.dataset.roomName;
+            connection.invoke("JoinRoom", currentRoom).catch(err => console.error(err));
+
+            document.getElementById("placeholder").style.display = "none";
+            document.getElementById("chat-container").style.display = "block";
+            document.getElementById("chattingWith").innerText = "Chat với " + element.innerText;
+            const messagesList = document.getElementById("messagesList");
+            messagesList.innerHTML = "Đang tải tin nhắn...";
+
+            fetch(`/Admin/Chat/GetMessages?roomName=${currentRoom}`)
+                .then(response => response.json())
+                .then(data => {
+                    messagesList.innerHTML = "";
+                    data.forEach(item => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `<strong>${item.user}:</strong> ${item.message}`;
+                        messagesList.appendChild(li);
+                    });
+                    messagesList.scrollTop = messagesList.scrollHeight;
+                });
+        }
+
+        document.querySelectorAll("#conversationList a").forEach(link => {
+            link.addEventListener("click", function (e) { e.preventDefault(); selectConversation(this); });
+        });
+
+        document.getElementById("sendButton").addEventListener("click", () => {
+            const message = document.getElementById("messageInput").value;
+            if (message && currentRoom) {
+                connection.invoke("SendMessage", message, currentRoom);
+                document.getElementById("messageInput").value = "";
+            }
+        });
+
+        connection.on("ReceiveMessage", (user, message, roomName) => {
+            if (roomName === currentRoom) {
+                const li = document.createElement("li");
+                li.innerHTML = `<strong>${user}:</strong> ${message}`;
+                document.getElementById("messagesList").appendChild(li);
+                document.getElementById("messagesList").scrollTop = document.getElementById("messagesList").scrollHeight;
+            }
+        });
+
+        connection.on("NewSupportConversation", (user, roomName) => {
+            let convoLink = document.querySelector(`a[data-room-name='${roomName}']`);
+            if (convoLink) {
+                convoLink.classList.add("fw-bold", "text-danger");
+                document.getElementById("conversationList").prepend(convoLink);
+            } else {
+                convoLink = document.createElement('a');
+                convoLink.href = "#";
+                convoLink.className = "list-group-item list-group-item-action fw-bold text-danger";
+                convoLink.dataset.roomName = roomName;
+                convoLink.innerText = user;
+                convoLink.addEventListener('click', function(e) { e.preventDefault(); selectConversation(this); });
+                document.getElementById("conversationList").prepend(convoLink);
+            }
+        });
+
+        connection.start().then(() => {
+            connection.invoke("JoinAdminGroup");
+        });
+    </script>
+}

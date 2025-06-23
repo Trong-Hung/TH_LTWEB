@@ -29,3 +29,44 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* CSS cho h?p g?i ý tìm ki?m */
+#search-suggestions-container {
+    position: absolute;
+    top: 100%; /* Hi?n th? ngay bên d??i ô input */
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    border: 1px solid #ddd;
+    border-top: none;
+    background-color: white;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none; /* M?c ??nh ?n ?i */
+}
+
+    #search-suggestions-container a {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        color: black;
+        text-decoration: none;
+        border-bottom: 1px solid #eee;
+    }
+
+        #search-suggestions-container a:last-child {
+            border-bottom: none;
+        }
+
+        #search-suggestions-container a:hover {
+            background-color: #f0f0f0;
+        }
+
+    #search-suggestions-container img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        margin-right: 10px;
+        border-radius: 4px;
+    }

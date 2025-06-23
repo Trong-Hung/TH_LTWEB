@@ -1,29 +1,37 @@
-# Visual Studio and IDE files/directories
-.vs/
-*.suo
-*.user
-*.bak
-*.log
-.idea/ # For JetBrains Rider if used
+﻿.vs/
+# File này chứa danh sách các file và thư mục mà Git sẽ bỏ qua.
+# Bình luận trong file .gitignore bắt đầu bằng dấu #
 
-# Build output (binaries and temporary files)
+# Thư mục của Visual Studio
+.vs/
+
+# Các file do người dùng tự cấu hình (user-specific)
+*.user
+*.suo
+
+# Thư mục chứa kết quả build của .NET.
+# [Bb]in/ sẽ khớp với "bin/" và "Bin/"
 [Bb]in/
 [Oo]bj/
 
-# Package files
-*.nupkg
-*.snupkg
+# File chứa bí mật người dùng (User Secrets)
+secrets.json
 
-# Common generated files for .NET/C# projects
-# If your .csproj.user or .vscode folder also create local settings you don't want to commit, add them
-# For example:
-# *.csproj.user
-# .vscode/
+# Các file publish
+[Pp]ublish/
+[Rr]elease/
 
-# Example of appsettings.json handling:
-# If appsettings.json contains sensitive info or local-only configs:
-# appsettings.json
-# appsettings.*.json # Wildcard for environment-specific configs
-#
-# If you need appsettings.json to be tracked and resolve conflicts manually, then DO NOT add it here.
-# Otherwise, if it's meant to be local/ignored, then add it.
+# Các file log
+*.log
+*.log.*
+
+# Các file tạm thời
+*.tmp
+
+# Các file của hệ điều hành
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# macOS
+.DS_Store

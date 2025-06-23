@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\trong\\OneDrive\\Desktop\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj": {}
+    "C:\\Users\\admin\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj": {}
   },
   "projects": {
-    "C:\\Users\\trong\\OneDrive\\Desktop\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj": {
+    "C:\\Users\\admin\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\trong\\OneDrive\\Desktop\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj",
+        "projectUniqueName": "C:\\Users\\admin\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj",
         "projectName": "VoTrongHung2280601119",
-        "projectPath": "C:\\Users\\trong\\OneDrive\\Desktop\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj",
-        "packagesPath": "C:\\Users\\trong\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\trong\\OneDrive\\Desktop\\TH_LTWEB\\VoTrongHung2280601119\\obj\\",
+        "projectPath": "C:\\Users\\admin\\TH_LTWEB\\VoTrongHung2280601119\\VoTrongHung2280601119.csproj",
+        "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\admin\\TH_LTWEB\\VoTrongHung2280601119\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\trong\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -50,9 +51,9 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
-            "Microsoft.AspNetCore.Authentication.Google": {
+            "MailKit": {
               "target": "Package",
-              "version": "[9.0.6, )"
+              "version": "[4.12.1, )"
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
@@ -98,6 +99,10 @@
               "target": "Package",
               "version": "[112.1.0, )"
             },
+            "SendGrid": {
+              "target": "Package",
+              "version": "[9.29.3, )"
+            },
             "Swashbuckle.AspNetCore.SwaggerUI": {
               "target": "Package",
               "version": "[9.0.1, )"
@@ -122,7 +127,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

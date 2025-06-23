@@ -26,6 +26,17 @@ namespace VoTrongHung2280601119.Repositories
             return await _context.Categories.FindAsync(id);
         }
 
+        // Thêm phương thức mới này vào
+        public async Task<Category> GetBySlugAsync(string slug)
+        {
+            return await _context.Categories.FirstOrDefaultAsync(c => c.Slug == slug);
+        }
+
+        public async Task<Category> GetByNameAsync(string name)
+        {
+            return await _context.Categories.FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
+        }
+
         public async Task AddAsync(Category category)
         {
             _context.Categories.Add(category);

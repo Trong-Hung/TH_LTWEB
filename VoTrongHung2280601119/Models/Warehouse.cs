@@ -11,5 +11,8 @@ namespace VoTrongHung2280601119.Models
         public string Address { get; set; } // Địa chỉ
         [Required(ErrorMessage = "Sức chứa là bắt buộc."), Range(0, int.MaxValue, ErrorMessage = "Sức chứa không hợp lệ.")]
         public int Capacity { get; set; } // Sức chứa
+
+        // DÒNG QUAN TRỌNG: Hãy chắc chắn bạn đã có dòng này để lưu slug URL thân thiện
+        public string? Slug { get; set; }
     }
 }

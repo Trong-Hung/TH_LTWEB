@@ -1,0 +1,73 @@
+﻿@model IEnumerable<VoTrongHung2280601119.Models.Message>
+@{
+    ViewData["Title"] = "Phòng Chat Cộng Đồng";
+    var roomName = ViewData["RoomName"] as string;
+}
+
+<div class="container py-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center p-3" style="border-top: 4px solid #ffa900;">
+                    <h5 class="mb-0">@ViewData["Title"]</h5>
+                </div>
+                <div class="card-body" style="position: relative; height: 400px; overflow-y: scroll;" id="messagesList">
+                    @foreach (var message in Model)
+                    {
+                        <div class="d-flex flex-row justify-content-start mb-4">
+                            <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                                <p class="small mb-0"><strong>@message.UserName:</strong> @message.Content</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+                    <input type="text" class="form-control" id="messageInput" placeholder="Nhập tin nhắn...">
+                    <button class="btn btn-warning ms-3" id="sendButton">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("DEBUG: Trang Chat Chung đang khởi tạo...");
+            const connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+            const roomName = "@roomName";
+            console.log("DEBUG: Tên phòng là:", roomName);
+
+            connection.on("ReceiveMessage", (user, message) => {
+                console.log("DEBUG: Nhận được tin nhắn mới:", { user, message });
+                const messagesList = document.getElementById("messagesList");
+                const msgDiv = document.createElement("div");
+                msgDiv.className = "d-flex flex-row justify-content-start mb-4";
+                msgDiv.innerHTML = `<div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);"><p class="small mb-0"><strong>${user}:</strong> ${message}</p></div>`;
+                messagesList.appendChild(msgDiv);
+                messagesList.scrollTop = messagesList.scrollHeight;
+            });
+
+            console.log("DEBUG: Bắt đầu kết nối SignalR...");
+            connection.start().then(() => {
+                console.log("DEBUG: Kết nối SignalR THÀNH CÔNG.");
+                connection.invoke("JoinRoom", roomName).catch(err => console.error("Lỗi khi tham gia nhóm:", err));
+            }).catch(err => {
+                console.error("Lỗi kết nối SignalR:", err);
+            });
+
+            document.getElementById("sendButton").addEventListener("click", () => {
+                console.log("DEBUG: Nút Gửi đã được nhấn.");
+                const message = document.getElementById("messageInput").value;
+                if (message && roomName) {
+                    console.log("DEBUG: Đang gửi tin nhắn:", message, "đến phòng:", roomName);
+                    connection.invoke("SendMessage", message, roomName).catch(err => console.error("Lỗi khi gửi tin nhắn:", err));
+                    document.getElementById("messageInput").value = "";
+                } else {
+                    console.log("DEBUG: Tin nhắn hoặc tên phòng trống, không gửi.");
+                }
+            });
+        });
+    </script>
+}
