@@ -64,7 +64,6 @@ builder.Services.AddScoped<IOrderItemRepository, EFOrderItemRepository>();
 // Momo
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoService, MomoService>();
-
 builder.Services.AddControllersWithViews();
 
 // Cấu hình SignalR và Chat Service
@@ -72,6 +71,20 @@ builder.Services.AddSignalR();
 // Đăng ký UserConnectionManager là Singleton vì nó quản lý trạng thái kết nối
 builder.Services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
 //UserManager thường đã được đăng ký bởi AddIdentity, không cần đăng ký lại
+//Cấu hình 2FA
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+});
+// Cấu hình Google Authentication
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    });
+
 
 var app = builder.Build();
 

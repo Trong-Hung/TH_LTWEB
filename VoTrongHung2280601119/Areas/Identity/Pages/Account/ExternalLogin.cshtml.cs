@@ -91,7 +91,6 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
 
         public IActionResult OnPost(string provider, string returnUrl = null)
         {
-            // Request a redirect to the external login provider.
             var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
@@ -141,8 +140,9 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
-            // Get the information about the user from the external login provider
+            returnUrl ??= Url.Content("~/");
+
+            // Lấy thông tin từ Google
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -152,16 +152,38 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
+                // Kiểm tra xem user đã tồn tại theo email chưa
+                var existingUser = await _userManager.FindByEmailAsync(Input.Email);
+                if (existingUser != null)
+                {
+                    // 🟩 Gán login Google vào user đã tồn tại
+                    var addLoginResult = await _userManager.AddLoginAsync(existingUser, info);
+                    if (addLoginResult.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(existingUser, isPersistent: false, info.LoginProvider);
+                        return LocalRedirect(returnUrl);
+                    }
+
+                    foreach (var error in addLoginResult.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+
+                    return Page();
+                }
+
+                // 🆕 Nếu user chưa tồn tại → tạo mới
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-                var result = await _userManager.CreateAsync(user);
-                if (result.Succeeded)
+                // 🟩 Gán FullName từ thông tin Google
+                user.FullName = info.Principal.FindFirstValue(ClaimTypes.Name) ?? "Google User";
+
+                var createResult = await _userManager.CreateAsync(user);
+                if (createResult.Succeeded)
                 {
-                    result = await _userManager.AddLoginAsync(user, info);
-                    if (result.Succeeded)
+                    var loginResult = await _userManager.AddLoginAsync(user, info);
+                    if (loginResult.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
@@ -177,7 +199,6 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                        // If account confirmation is required, we need to show the link if we don't have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {
                             return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
@@ -186,17 +207,20 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account
                         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
                         return LocalRedirect(returnUrl);
                     }
+
+                    foreach (var error in loginResult.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
                 }
-                foreach (var error in result.Errors)
-                {
+
+                foreach (var error in createResult.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-                }
             }
 
             ProviderDisplayName = info.ProviderDisplayName;
             ReturnUrl = returnUrl;
             return Page();
         }
+
 
         private ApplicationUser CreateUser()
         {

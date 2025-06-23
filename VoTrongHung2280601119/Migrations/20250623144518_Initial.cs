@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VoTrongHung2280601119.Migrations
 {
     /// <inheritdoc />
-    public partial class FinalOrderCustomerFix : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

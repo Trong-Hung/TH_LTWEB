@@ -141,6 +141,7 @@ namespace VoTrongHung2280601119.Areas.Identity.Pages.Account.Manage
             {
                 return RedirectToPage("./TwoFactorAuthentication");
             }
+
         }
 
         private async Task LoadSharedKeyAndQrCodeUriAsync(ApplicationUser user)

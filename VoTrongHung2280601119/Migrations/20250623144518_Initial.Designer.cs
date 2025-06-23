@@ -12,8 +12,8 @@ using VoTrongHung2280601119.Models;
 namespace VoTrongHung2280601119.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250623080231_AddMessageTable")]
-    partial class AddMessageTable
+    [Migration("20250623144518_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
