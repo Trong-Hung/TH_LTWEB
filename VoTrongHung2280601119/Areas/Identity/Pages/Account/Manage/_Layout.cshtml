@@ -1,19 +1,53 @@
 ﻿@{
-    // Đảm bảo Layout này sử dụng Layout chung của ứng dụng
+    // Áp dụng Layout tổng cho ứng dụng
     Layout = "/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Quản lý tài khoản của bạn</h2>
+@section Styles {
+    <!-- Biểu tượng Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-<div>
-    <h4>Thay đổi cài đặt tài khoản của bạn</h4>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        h2, h4 {
+            font-weight: 600;
+        }
+
+        .manage-layout {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .manage-nav {
+            border-right: 1px solid #e0e0e0;
+            padding-right: 1rem;
+        }
+
+        .manage-content {
+            padding-left: 1.5rem;
+        }
+    </style>
+}
+
+<div class="container my-5 manage-layout">
+    <h2 class="mb-4"><i class="bi bi-person-gear me-2"></i>Quản lý tài khoản của bạn</h2>
+    <h5 class="mb-3 text-muted">Cập nhật cài đặt cá nhân và bảo mật</h5>
     <hr />
+
     <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" /> @* ĐÂY LÀ CHỖ GỌI SIDEBAR ĐIỀU HƯỚNG *@
+        <div class="col-md-3 manage-nav">
+            <partial name="_ManageNav" />
         </div>
-        <div class="col-md-9">
-            @RenderBody()@* ĐÂY LÀ NƠI NỘI DUNG CHÍNH CỦA TỪNG TRANG CON (Profile, Email, 2FA...) SẼ ĐƯỢC RENDER *@
+        <div class="col-md-9 manage-content">
+            @RenderBody()
         </div>
     </div>
 </div>
